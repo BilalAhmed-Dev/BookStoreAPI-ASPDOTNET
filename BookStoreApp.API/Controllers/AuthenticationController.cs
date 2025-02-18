@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security;
 using System.Security.Claims;
 using System.Text;
 
@@ -93,10 +94,25 @@ namespace BookStoreApp.API.Controllers
             }
         }
 
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            var user = await userManager.FindByIdAsync(User.FindFirstValue(CustomClaimTypes.Uid));
+            if (user == null) return BadRequest("User not found");
+
+            // This will invalidate all existing tokens
+            await userManager.UpdateSecurityStampAsync(user);
+
+            return Ok("Logged out successfully");
+        }
+
         private async Task<string> GenerateToken(ApiUser user)
         {
             var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]));
             var credentials = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
+
+            var securityStamp = await userManager.GetSecurityStampAsync(user);
 
             var roles = await userManager.GetRolesAsync(user);
             var roleClaims = roles.Select(q => new Claim(ClaimTypes.Role, q)).ToList();
@@ -108,7 +124,8 @@ namespace BookStoreApp.API.Controllers
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(CustomClaimTypes.Uid, user.Id)
+                new Claim(CustomClaimTypes.Uid, user.Id),
+                new Claim("AspNet.Identity.SecurityStamp", securityStamp)
             }
             .Union(userClaims)
             .Union(roleClaims);
