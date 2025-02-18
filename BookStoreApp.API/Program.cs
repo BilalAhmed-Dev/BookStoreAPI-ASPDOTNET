@@ -9,9 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("BookStoreAppDbConnection");
 builder.Services.AddDbContext<BookstoreContext>(options => options.UseSqlServer(connString));
 
-// builder.Services.AddIdentityCore<ApiUser>()
-//    .AddRoles<IdentityRole>()
- //   .AddEntityFrameworkStores<BookstoreContext>();
+builder.Services.AddIdentityCore<ApiUser>()
+.AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<BookstoreContext>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
