@@ -14,7 +14,6 @@ namespace BookStoreApp.API.Data
         public string? UserId { get; set; }
         public DateTime? OrderDate { get; set; }
 
-        public virtual User? User { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; }
     }
 }

@@ -22,7 +22,6 @@ namespace BookStoreApp.API.Data
         public virtual DbSet<CartItem> CartItems { get; set; } = null!;
         public virtual DbSet<Order> Orders { get; set; } = null!;
         public virtual DbSet<OrderItem> OrderItems { get; set; } = null!;
-        public virtual DbSet<User> Users { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -77,6 +76,8 @@ namespace BookStoreApp.API.Data
             modelBuilder.Entity<CartItem>(entity =>
             {
                 entity.ToTable("cart_items");
+                entity.Property(e => e.UserId)
+            .HasMaxLength(450);
 
                 entity.Property(e => e.CartItemId).HasColumnName("cart_item_id");
 
@@ -93,10 +94,7 @@ namespace BookStoreApp.API.Data
                     .HasForeignKey(d => d.BookId)
                     .HasConstraintName("FK__cart_item__book___48CFD27E");
 
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.CartItems)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__cart_item__user___47DBAE45");
+              
             });
 
 
@@ -104,6 +102,8 @@ namespace BookStoreApp.API.Data
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.ToTable("orders");
+                entity.Property(e => e.UserId)
+            .HasMaxLength(450);
 
                 entity.Property(e => e.OrderId).HasColumnName("order_id");
 
@@ -115,10 +115,7 @@ namespace BookStoreApp.API.Data
                     .HasMaxLength(36)
                     .HasColumnName("user_id");
 
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Orders)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__orders__user_id__412EB0B6");
+              
             });
 
             modelBuilder.Entity<OrderItem>(entity =>
@@ -146,26 +143,7 @@ namespace BookStoreApp.API.Data
                     .HasConstraintName("FK__order_ite__order__440B1D61");
             });
 
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.ToTable("users");
-
-                entity.Property(e => e.UserId)
-                    .HasMaxLength(36)
-                    .HasColumnName("user_id");
-
-                entity.Property(e => e.Email)
-                    .HasMaxLength(255)
-                    .HasColumnName("email");
-
-                entity.Property(e => e.Password)
-                    .HasMaxLength(255)
-                    .HasColumnName("password");
-
-                entity.Property(e => e.Username)
-                    .HasMaxLength(255)
-                    .HasColumnName("username");
-            });
+          
 
             modelBuilder.Entity<IdentityRole>().HasData(
                 new IdentityRole

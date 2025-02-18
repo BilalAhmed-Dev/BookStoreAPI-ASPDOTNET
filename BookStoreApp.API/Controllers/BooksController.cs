@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookStoreApp.API.Data;
 using BookStoreApp.API.Models.Book;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookStoreApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class BooksController : ControllerBase
     {
         private readonly BookstoreContext _context;
@@ -46,6 +48,7 @@ namespace BookStoreApp.API.Controllers
         // PUT: api/Books/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> PutBook(int id, Book book)
         {
             if (id != book.BookId)
@@ -77,6 +80,7 @@ namespace BookStoreApp.API.Controllers
         // POST: api/Books
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<NewBookDto>> PostBook(NewBookDto bookDTO)
         {
             var book = mapper.Map<Book>(bookDTO);
@@ -88,6 +92,7 @@ namespace BookStoreApp.API.Controllers
 
         // DELETE: api/Books/5
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteBook(int id)
         {
             var book = await _context.Books.FindAsync(id);
