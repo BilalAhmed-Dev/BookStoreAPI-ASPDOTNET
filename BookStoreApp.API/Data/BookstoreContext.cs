@@ -18,7 +18,6 @@ namespace BookStoreApp.API.Data
 
         public virtual DbSet<Book> Books { get; set; } = null!;
         public virtual DbSet<CartItem> CartItems { get; set; } = null!;
-        public virtual DbSet<JwtBlacklist> JwtBlacklists { get; set; } = null!;
         public virtual DbSet<Order> Orders { get; set; } = null!;
         public virtual DbSet<OrderItem> OrderItems { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
@@ -96,23 +95,7 @@ namespace BookStoreApp.API.Data
                     .HasConstraintName("FK__cart_item__user___47DBAE45");
             });
 
-            modelBuilder.Entity<JwtBlacklist>(entity =>
-            {
-                entity.ToTable("jwt_blacklist");
 
-                entity.HasIndex(e => e.Token, "IX_jwt_blacklist_token")
-                    .IsUnique();
-
-                entity.Property(e => e.Id).HasColumnName("id");
-
-                entity.Property(e => e.ExpiryDate)
-                    .HasColumnType("datetime")
-                    .HasColumnName("expiry_date");
-
-                entity.Property(e => e.Token)
-                    .HasMaxLength(255)
-                    .HasColumnName("token");
-            });
 
             modelBuilder.Entity<Order>(entity =>
             {
