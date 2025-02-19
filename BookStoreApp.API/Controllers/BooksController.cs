@@ -24,39 +24,63 @@ namespace BookStoreApp.API.Controllers
             this.mapper = mapper;
         }
 
-        // GET: api/Books
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        // GET: /api/Books/getBooks
+        [HttpGet("getBooks")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<BookDTO>>> GetBooks()
         {
-            return await _context.Books.ToListAsync();
+            var books = await _context.Books.ToListAsync();
+            return mapper.Map<List<BookDTO>>(books);
         }
 
-        // GET: api/Books/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook(int id)
+
+        // GET: api/Books/getBook
+        [HttpGet("getBook")]
+        [Authorize]
+        public async Task<ActionResult<BookDTO>> GetBook([FromQuery(Name = "bookId")] int id)
         {
             var book = await _context.Books.FindAsync(id);
-
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            return book;
+            if (book == null) return NotFound();
+            return mapper.Map<BookDTO>(book);
         }
+
+        // GET: api/Books/search
+        // GET: api/Books/search
+        [HttpGet("search")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<BookDTO>>> SearchBooks(
+            [FromQuery] string? title,
+            [FromQuery] string? author,
+            [FromQuery] string? genre)
+        {
+            var query = _context.Books.AsQueryable();
+
+            if (!string.IsNullOrEmpty(title))
+                query = query.Where(b => b.Title.ToLower().Contains(title.ToLower()));
+
+            if (!string.IsNullOrEmpty(author))
+                query = query.Where(b => b.Author.ToLower().Contains(author.ToLower()));
+
+            if (!string.IsNullOrEmpty(genre))
+                query = query.Where(b => b.Genre.ToLower().Contains(genre.ToLower()));
+
+            var results = await query.ToListAsync();
+            return mapper.Map<List<BookDTO>>(results);
+        }
+
 
         // PUT: api/Books/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("editbook/{id}")]
         [Authorize]
-        public async Task<IActionResult> PutBook(int id, Book book)
+        public async Task<IActionResult> PutBook(int id, BookDTO bookDTO)
         {
-            if (id != book.BookId)
+            if (id != bookDTO.BookId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(book).State = EntityState.Modified;
+            _context.Entry(bookDTO).State = EntityState.Modified;
 
             try
             {
@@ -81,7 +105,7 @@ namespace BookStoreApp.API.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<NewBookDto>> PostBook(NewBookDto bookDTO)
+        public async Task<ActionResult<BookDTO>> PostBook(BookDTO bookDTO)
         {
             var book = mapper.Map<Book>(bookDTO);
             _context.Books.Add(book);

@@ -76,25 +76,34 @@ namespace BookStoreApp.API.Data
             modelBuilder.Entity<CartItem>(entity =>
             {
                 entity.ToTable("cart_items");
+
+                entity.Property(e => e.CartItemId)
+                    .HasColumnName("cart_item_id")
+                    .ValueGeneratedOnAdd();  // Ensure auto-increment if using database generation
+
+                entity.Property(e => e.Amount)
+                    .HasColumnName("amount")
+                    .HasDefaultValue(1)  // Consider default value if appropriate
+                    .IsRequired();
+
+                entity.Property(e => e.BookId)
+                    .HasColumnName("book_id")
+                    .IsRequired();
+
                 entity.Property(e => e.UserId)
-            .HasMaxLength(450);
-
-                entity.Property(e => e.CartItemId).HasColumnName("cart_item_id");
-
-                entity.Property(e => e.Amount).HasColumnName("amount");
-
-                entity.Property(e => e.BookId).HasColumnName("book_id");
-
-                entity.Property(e => e.UserId)
-                    .HasMaxLength(36)
-                    .HasColumnName("user_id");
+                    .HasColumnName("user_id")
+                    .HasMaxLength(36)  // Consistent with GUID/UUID format
+                    .IsRequired();
 
                 entity.HasOne(d => d.Book)
                     .WithMany(p => p.CartItems)
                     .HasForeignKey(d => d.BookId)
-                    .HasConstraintName("FK__cart_item__book___48CFD27E");
+                    .HasConstraintName("FK_cart_items_books")  // More meaningful constraint name
+                    .OnDelete(DeleteBehavior.Cascade);  // Explicit delete behavior
 
-              
+                entity.HasIndex(e => new { e.UserId, e.BookId })
+                    .HasDatabaseName("IX_cart_items_user_book")
+                    .IsUnique();  // Prevent duplicate items for same user
             });
 
 

@@ -2,7 +2,7 @@
 
 namespace BookStoreApp.API.Models.Book
 {
-    public class NewBookDto
+    public class BookDTO
     {
         public int? BookId { get; set; } // Nullable to allow for creation without an ID
 

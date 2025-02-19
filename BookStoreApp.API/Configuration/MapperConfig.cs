@@ -9,7 +9,7 @@ namespace BookStoreApp.API.Configurations
     {
         public MapperConfig()
         {
-            CreateMap<NewBookDto, Book>().ReverseMap();
+            CreateMap<BookDTO, Book>().ReverseMap();
             CreateMap<ApiUser, UserDto>().ReverseMap();
         }
     }
